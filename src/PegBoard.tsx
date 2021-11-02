@@ -13,7 +13,6 @@ import {
   movePeg,
   PEG,
   removePeg,
-  rick,
   solveBoard,
   SPACE,
 } from "./logic";
@@ -36,11 +35,11 @@ export const BoardRow = styled.div`
 
 export const PegBoard: React.FC<IBoardProps> = (props) => {
   const [boards, setBoards] = React.useState<Board[] | null>();
-  const [gameStarted, setGameStarted] = React.useState(true);
+  const [gameStarted, setGameStarted] = React.useState(false);
   const [selectedPeg, setSelectedPeg] = React.useState<Coordinates | null>(
     null
   );
-  const [board, setBoard] = React.useState(rick);
+  const [board, setBoard] = React.useState(initialBoard);
   const handleClick = (i: number, j: number) => {
     const coordinates = { row: i, column: j };
     const tileValue = getTile(board, coordinates);
@@ -87,6 +86,7 @@ export const PegBoard: React.FC<IBoardProps> = (props) => {
     setGameStarted(false);
     setSelectedPeg(null);
     setBoard(initialBoard);
+    setBoards(null);
   };
 
   const solve = () => {
@@ -105,7 +105,7 @@ export const PegBoard: React.FC<IBoardProps> = (props) => {
       <BoardContainer>{rows}</BoardContainer>
       {!gameStarted && <p>Selected a peg to remove it and start the game!</p>}
       <button onClick={reset}>Reset</button>
-      <button onClick={solve}>Solve</button>
+      <button onClick={solve}>Solve (experimental)</button>
       {boards && <BoardViewer boards={boards} />}
     </>
   );

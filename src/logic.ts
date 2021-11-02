@@ -29,16 +29,6 @@ export const simpleBoard: Board = [
   [CORNER, CORNER, SPACE, SPACE, SPACE, CORNER, CORNER],
 ];
 
-export const rick: Board = [
-  ["corner", "corner", "space", "peg", "peg", "corner", "corner"],
-  ["corner", "peg", "space", "peg", "space", "space", "corner"],
-  ["space", "peg", "peg", "space", "peg", "space", "space"],
-  ["space", "space", "space", "space", "space", "space", "space"],
-  ["space", "space", "peg", "peg", "space", "space", "space"],
-  ["corner", "peg", "space", "peg", "space", "space", "corner"],
-  ["corner", "corner", "peg", "peg", "space", "corner", "corner"],
-];
-
 export function getTile(board: Board, coordinates: Coordinates): Tile {
   return board[coordinates.row][coordinates.column];
 }
@@ -218,10 +208,11 @@ let bestSolution = 37;
 export function solveBoard(b: Board): MoveHistory | null {
   const moves = getMoves(b);
   bestSolution = 37;
+  boardCollection = [];
   let best: any;
   moves.forEach((move) => {
     console.log("Walking initial branch");
-    let results = walkBoard(b, move, { boardState: b, move: null });
+    let results = walkBoard(b, move, { boardState: b, move: move });
     if (results) {
       best = results;
     }
@@ -236,6 +227,9 @@ function walkBoard(
   history?: MoveHistory
 ): { history: MoveHistory; count: number } | void {
   const newBoard = movePeg(b, m.from, m.to);
+  if (boardAlreadyChecked(newBoard)) {
+    return;
+  }
   totalWalks++;
   const newHistory: MoveHistory = {
     prevMove: history,
@@ -271,6 +265,20 @@ function walkBoard(
   }
 }
 
+let boardCollection: string[] = [];
+
+function compressBoard(board: Board) {
+  return JSON.stringify(board);
+}
+
+function boardAlreadyChecked(board: Board): boolean {
+  let boardStr = compressBoard(board);
+  if (boardCollection.indexOf(boardStr) === -1) {
+    return false;
+  }
+  return true;
+}
+
 // function main() {
 //   const board = initialBoard;
 //   const newBoard = removePeg(board, { row: 0, column: 2 });
@@ -289,17 +297,20 @@ export function compareCoordinates(
 export function history2Boards(tailHistory: MoveHistory): Board[] {
   const boards: Board[] = [];
   let currentHistory = tailHistory;
+  console.log("boom");
   console.log(currentHistory);
   while (true) {
     if (!currentHistory) {
       console.log("bap");
       break;
     }
-    if (!currentHistory.boardState || !currentHistory.prevMove) {
+    if (currentHistory.boardState) {
+      boards.push(currentHistory.boardState);
+    }
+    if (!currentHistory.prevMove) {
       console.log("boom");
       break;
     }
-    boards.push(currentHistory.boardState);
     currentHistory = currentHistory.prevMove;
   }
   boards.reverse();
